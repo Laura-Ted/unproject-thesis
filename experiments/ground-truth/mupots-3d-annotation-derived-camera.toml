@@ -1,0 +1,52 @@
+# The focal-length experiment. See mupots-3d.toml for everything this file
+# does not comment on; the two are meant to be read side by side.
+#
+# The dataset is NOT in this repository and will not be fetched by it: the
+# licence is the author's to read and accept. Obtain it from
+# https://vcai.mpi-inf.mpg.de/projects/SingleShotMultiPerson/ and extract it to
+# datasets/mupots-3d/.
+#
+# `release` is free text because MuPoTS publishes no version string. What
+# actually pins the content is the inventory hash recorded in the evaluation
+# descriptor, computed over the annotation files.
+schema_version = 2
+name = "mupots-3d-test-annotation-derived-camera"
+description = "The same 20 sequences, with the estimator told each sequence's annotation-derived intrinsics."
+
+dataset = "mupots-3d"
+dataset_root = "../../datasets/mupots-3d"
+release = "MultiPersonTestSet.zip, 5642949208 bytes, downloaded 2026-09-10"
+split = "test"
+
+experiment = "mupots-estimator.toml"
+mapping = "mappings/mupots-3d-to-anny-v1.toml"
+
+metric_protocol = "unproject_mupots_14j_v1"
+matcher = "mupots_greedy_2d_40px"
+
+# The one line that differs from mupots-3d.toml. That file is the control:
+# the model guesses its camera, as it does on any clip in the wild. This is
+# the treatment: per sequence, the focal length and principal point recovered
+# by least squares from the released 2D and 3D annotations are handed to the
+# decoder in place of the guess. MuPoTS publishes no calibration, so this is
+# an annotation-derived camera and is never called a released or true one.
+# Nothing else moves - same checkpoint, same mapping, same thresholds - so
+# any difference between the two results is the intervention on the
+# intrinsics, measured under this protocol.
+# docs/notes/2026-09-11-mupots-full-run.md predicts what should happen.
+camera = "annotation_derived"
+
+# Explicit rather than defaulted: the schema default is written relative to
+# experiments/, and these configs sit one level deeper, so leaving it out
+# would put results in experiments/artifacts/ instead of the artifact tree.
+output_root = "../../artifacts/ground-truth"
+
+[thresholds]
+# The official radius. Millimetres, as the protocol states it.
+pck_radius_mm = 150.0
+# From the annotated distribution rather than round numbers: pelvis depth runs
+# 1.67-7.12 m with p5 2.37, median 3.62 and p95 5.94, so these bins split the
+# data rather than leaving the outer two nearly empty.
+depth_bins_metres = [2.5, 3.5, 4.5, 6.0]
+# Still open: the release ships numbered jpgs with no stated frame rate.
+max_temporal_interval_seconds = 0.2

@@ -1,0 +1,35 @@
+# MOT16-09 at half resolution: the same 525 frames, every 2x2 block of pixels
+# averaged into one by the ingest (`geometry.downscale = 2`), so the source is
+# 960x540 and the model still sees a 768x432 tensor. The resolution factor of
+# the matrix suite (protocol v2 §3.2, §4.1): same content, a quarter of the
+# source pixels, the same tensor.
+#
+# Nothing is transcoded and nothing is carried: the frames are derived from
+# the official archive by exact integer arithmetic on every machine, so the
+# ingest writes the same bytes everywhere. `expected_sha256` is therefore the
+# digest of the source directory, the same as experiments/mot16-09.toml.
+schema_version = 1
+name = "mot16-09-half"
+description = "MOT16-09 downscaled 2x by the ingest to 960x540. Same content, a quarter of the pixels."
+seed = 0
+
+[ingest]
+source_path = "../datasets/mot16/MOT16-09/img1"
+# seqinfo.ini: frameRate=30, seqLength=525, 1920x1080.
+image_fps = 30.0
+frame_stride = 1
+
+[ingest.geometry]
+downscale = 2
+
+[provenance]
+title = "MOT16-09 (MOTChallenge MOT16 benchmark, training split)"
+author = "Milan, Leal-Taixé, Reid, Roth and Schindler (MOTChallenge)"
+source_url = "https://motchallenge.net/data/MOT16/"
+download_url = "https://motchallenge.net/data/MOT16.zip"
+licence = "Publicly available for research with citation of the benchmark paper; no licence text published, not redistributed here"
+acquired_on = 2026-09-15
+original_sha256 = "b944a7ddf0fbce8742a238b9717658d26a8810ab8595e94ba7b0d9ffad3a291b"
+original_bytes = 1954509127
+derivation = "as mot16-09.toml; the ingest averages each 2x2 block of every frame into one pixel (exact integer box average), writing 960x540 frames"
+expected_sha256 = "6b1238af32a4931ba848ac587d81ccffeabc77b7b418723424e9b3cf5dca4999"

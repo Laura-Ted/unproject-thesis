@@ -1,0 +1,28 @@
+# The suite that proves the plumbing, not a cell of the thesis matrix: the
+# fixture clip is a synthetic pattern with nobody in it, and this runs below
+# the protocol's minimums on purpose. The summary marks it so.
+#
+#   uv run unproject benchmark-suite experiments/benchmark/v2/fixture-suite.toml --dry-run
+schema_version = 2
+name = "fixture-suite"
+description = "Orchestration check: two cells, two repetitions, a process each."
+
+warmup_frames = 2
+measured_frames = 8
+repetitions = 2
+order_seed = 1
+
+[[cells]]
+name = "fixture-skeleton"
+experiment = "../../fixture.toml"
+output = "skeleton"
+
+[[cells]]
+name = "fixture-mesh"
+experiment = "../../fixture.toml"
+output = "mesh"
+
+[[pairs]]
+a = "fixture-skeleton"
+b = "fixture-mesh"
+question = "output mode on the fixture"

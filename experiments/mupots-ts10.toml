@@ -1,0 +1,52 @@
+# MuPoTS-3D TS10: three people walking towards a fixed camera at eye level on
+# the MPI campus, then standing together; whole bodies in frame, no vehicles,
+# 251 frames. The "low" level of the person-count factor (protocol v2 §4.2,
+# ADR-0006): the model returns three people in every sampled frame.
+#
+# The sequence is one of the twenty of MuPoTS-3D (Mehta, Sotnychenko, Mueller,
+# Xu, Sridhar, Pons-Moll, Theobalt, "Single-Shot Multi-Person 3D Pose
+# Estimation From Monocular RGB", 3DV 2018), the dataset the thesis already
+# evaluates accuracy on (ADR-0004, experiments/ground-truth/). Outdoor
+# sequences TS6-TS20 are 1920x1080 JPEG frames from a tripod: on 2026-09-15
+# the camera of every sequence was measured still (optical-flow translation
+# of the background, median 0.01 px per frame pair, drift under 2 px over the
+# whole sequence). The frames are read as an image directory, so no transcode
+# stands between the dataset's bytes and the campaign's; the digest below is
+# the ordered content digest of the 251 files as the ingest computes it, and
+# every machine's preflight checks it.
+#
+# The dataset is not fetched by the pipeline: its terms (research only, no
+# redistribution, citation of both Mehta et al. papers) are the operator's to
+# read and accept at the project page. `benchmarks/fetch-datasets.sh
+# --accept-mupots-terms` then downloads the official archive, verifies its
+# digest and extracts this sequence beside the ground-truth copy:
+#
+#   datasets/mupots-3d/MultiPersonTestSet/TS10/img_000000.jpg ... img_000250.jpg
+#
+# MuPoTS publishes no frame rate; 30 fps is assumed for the timestamps only.
+# The benchmark times frames, not seconds, so nothing measured depends on it.
+#
+# Terms: frames of MuPoTS are not printed in the thesis and are not
+# redistributed - only this recipe and the digests are.
+schema_version = 1
+name = "mupots-ts10"
+description = "MuPoTS-3D TS10: three people walking towards a fixed camera, campus courtyard."
+seed = 0
+
+[ingest]
+source_path = "../datasets/mupots-3d/MultiPersonTestSet/TS10"
+# The dataset states no frame rate; assumed, and used for timestamps only.
+image_fps = 30.0
+frame_stride = 1
+
+[provenance]
+title = "MuPoTS-3D test sequence TS10 (MultiPersonTestSet)"
+author = "Mehta, Sotnychenko, Mueller, Xu, Sridhar, Pons-Moll and Theobalt (MPI for Informatics)"
+source_url = "https://vcai.mpi-inf.mpg.de/projects/SingleShotMultiPerson/"
+download_url = "https://gvv.mpi-inf.mpg.de/projects/SingleShotMultiPerson/MultiPersonTestSet.zip"
+licence = "MPI for Informatics licence (license.txt of mupots-3d-eval.zip): non-commercial research only, no redistribution, citation of Mehta et al. 3DV 2018 and 3DV 2017 required; not redistributed here"
+acquired_on = 2026-09-15
+original_sha256 = "0f5efe136e3692420c904b08c52fa42c7e70a27f955fbb2e7067909f848db136"
+original_bytes = 5642949208
+derivation = "unzip MultiPersonTestSet.zip MultiPersonTestSet/TS10/*; the 251 JPEG frames are read directly as an image directory (annot.mat and occlusion.mat beside them are ignored), no transcode"
+expected_sha256 = "46fe005f943fced99458286c6adf691285e843cad02e1a26635f783b6d49f56a"

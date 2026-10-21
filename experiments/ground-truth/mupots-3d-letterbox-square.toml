@@ -1,0 +1,41 @@
+# The controlled test of the square-frame effect. ADR-0005 WP5 and
+# docs/experiments/ground-truth-protocol.md §4.6.
+#
+# Every wide sequence (TS6-TS20, 1920x1080) is padded with black rows above
+# and below to 1920x1920 before the estimator sees it; the 2D annotations and
+# the annotation-derived principal point move down by the padding; the 3D
+# annotations, the actors and the camera are the ones of mupots-3d-annotation-
+# derived-camera.toml, which is the control this run is compared with, per
+# sequence, by `unproject gt-compare`. The five square sequences (TS1-TS5)
+# pass through unchanged and land in the same result so the comparison is
+# over the same twenty.
+#
+# Same checkpoint, same mapping, same matcher, same intrinsics condition; the
+# only thing that changes on the way to the model is the shape of the tensor.
+#
+# The dataset is NOT in this repository and will not be fetched by it; see
+# mupots-3d.toml. Padded frames are written under artifacts/_derived/ and
+# deleted per sequence by --release-frames.
+schema_version = 2
+name = "mupots-3d-test-letterbox-square"
+description = "The 20 sequences with every wide one letterboxed to a square, annotation-derived intrinsics."
+
+dataset = "mupots-3d"
+dataset_root = "../../datasets/mupots-3d"
+release = "MultiPersonTestSet.zip, 5642949208 bytes, downloaded 2026-09-10"
+split = "test"
+
+experiment = "mupots-estimator.toml"
+mapping = "mappings/mupots-3d-to-anny-v1.toml"
+
+metric_protocol = "unproject_mupots_14j_v1"
+matcher = "mupots_greedy_2d_40px"
+camera = "annotation_derived"
+frame_transform = "letterbox_square"
+
+output_root = "../../artifacts/ground-truth"
+
+[thresholds]
+pck_radius_mm = 150.0
+depth_bins_metres = [2.5, 3.5, 4.5, 6.0]
+max_temporal_interval_seconds = 0.2

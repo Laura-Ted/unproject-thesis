@@ -1,0 +1,41 @@
+# pedestrians letterboxed to a square: the same 1920x1080 content with 420
+# black rows added above and below, 1920x1920. The aspect-ratio factor of the
+# RQ2 matrix under protocol v2 (ADR-0005 WP2).
+#
+#   ffmpeg -y -i datasets/pedestrians/clip.mp4 \
+#       -vf "pad=1920:1920:0:420:color=black" \
+#       -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an \
+#       datasets/pedestrians-letterbox/clip.mp4
+#
+# Padding rather than cropping, which is what v1 did: a crop removes part of
+# the scene and with it some of the people, so v1's square cells confounded
+# aspect ratio with content. Here every person is in both cells. The apparent
+# scale is unchanged as well: the model resizes the long edge to 768, and the
+# long edge is 1920 in both, so a person covers the same pixels of the tensor
+# - the tensor is 768x768 instead of 768x432, and the difference is the
+# 336 padded rows, which is exactly the factor under test. No residual scale
+# variation to declare.
+schema_version = 1
+name = "pedestrians-letterbox"
+description = "pedestrians padded to 1920x1920. Same content and scale, square tensor."
+seed = 0
+
+[ingest]
+source_path = "../datasets/pedestrians-letterbox/clip.mp4"
+frame_stride = 1
+
+[provenance]
+title = "Video Codec Test: pedestrian area, 1080p25 (letterboxed to 1920x1920)"
+author = "Wikimedia Commons contributor (see the source page); a standard video-codec test sequence"
+source_url = "https://commons.wikimedia.org/wiki/File:Video_Codec_Test_pedestrian_area_1080p25.y4m.webm"
+licence = "CC0 1.0 Universal (public domain dedication)"
+acquired_on = 2026-09-06
+original_sha256 = "bfadaa62cccb42db875d50bb842aa0964fbf72040432e4097c1df59e043e0c26"
+original_bytes = 11215394
+derivation = "as pedestrians.toml, then: ffmpeg -y -i datasets/pedestrians/clip.mp4 -vf pad=1920:1920:0:420:color=black -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an datasets/pedestrians-letterbox/clip.mp4"
+download_url = "https://upload.wikimedia.org/wikipedia/commons/a/ae/Video_Codec_Test_pedestrian_area_1080p25.y4m.webm"
+# The campaign's bytes (ADR-0006 §5): the file as transcoded on machine B with
+# ffmpeg 9.0.1 on 2026-09-15, 14457293 bytes, carried to every other machine
+# as is and deposited with the evidence. A transcode made elsewhere is not the
+# same file, and the preflight says so.
+expected_sha256 = "bd13fb3f7920761ea23bd6fcda62bfb57b73ea8cf5d07726f33fc681ce9d9dca"

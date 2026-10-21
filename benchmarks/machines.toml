@@ -1,0 +1,72 @@
+# The machines of the performance campaign (ADR-0006 §3). A job records the
+# id it ran under and the summary refuses to pool two ids into one cell; the
+# preflight refuses an id that is not here. Add a machine before it measures,
+# never after: the registry is part of the pre-registration.
+#
+# `device` is the accelerator the machine offers. A suite that asks for the
+# CPU (`device = "cpu"` in the suite file) may run on any machine and its
+# results record `cpu`; an `auto` suite on a machine is expected to find the
+# device declared here, and the preflight fails if it does not.
+schema_version = 1
+
+[[machines]]
+id = "A"
+label = "Apple MacBook Pro 14-inch (2023), M3 Pro, 18 GiB unified memory"
+device = "mps"
+hardware_class = "consumer"
+notes = "The protocol machine of ADR-0005; the author's. Runs the v2 suites for the final results."
+
+[[machines]]
+id = "B"
+label = "Apple Mac mini (2024), M4, 16 GiB unified memory"
+device = "mps"
+hardware_class = "consumer"
+notes = "Second Apple Silicon machine; replicates every suite under the same protocol."
+
+[[machines]]
+id = "D"
+label = "Apple MacBook Pro 16-inch (2024), M4 Pro, 24 GiB unified memory"
+device = "mps"
+hardware_class = "consumer"
+notes = "Third Apple Silicon machine, added 2026-09-15: the same Pro laptop line as A, one generation later; it replaces B as the second Apple machine of the final campaign."
+
+# Linux machines with a consumer GeForce card, rented by the hour with the
+# card in passthrough: consumer silicon on a shared host. Which cards is
+# decided when they are booked; each gets its own id here before it runs, and
+# the id names the card so a table reads without a key. The host CPU is
+# whatever the offer had - a server part on most, a Ryzen or Core on some -
+# and the result records it; the CPU suite on such a host is read with that.
+[[machines]]
+id = "C-rtx3060"
+label = "Linux, NVIDIA GeForce RTX 3060 12 GiB (Ampere, 2021), rented host"
+device = "cuda"
+hardware_class = "rented-consumer-gpu"
+notes = "The entry-level tier: the most common discrete card of its generation."
+
+[[machines]]
+id = "C-rtx4070"
+label = "Linux, NVIDIA GeForce RTX 4070 12 GiB (Ada Lovelace, 2023), rented host"
+device = "cuda"
+hardware_class = "rented-consumer-gpu"
+notes = "The mid-range tier."
+
+[[machines]]
+id = "C-rtx4090"
+label = "Linux, NVIDIA GeForce RTX 4090 24 GiB (Ada Lovelace, 2022), rented host"
+device = "cuda"
+hardware_class = "rented-consumer-gpu"
+notes = "The top of the previous consumer generation."
+
+[[machines]]
+id = "C-rtx5090"
+label = "Linux, NVIDIA GeForce RTX 5090 32 GiB (Blackwell, 2025), rented host"
+device = "cuda"
+hardware_class = "rented-consumer-gpu"
+notes = "The top of the current consumer generation."
+
+[[machines]]
+id = "C-rtx5070"
+label = "Linux, NVIDIA GeForce RTX 5070 12 GiB (Blackwell, 2025), rented host"
+device = "cuda"
+hardware_class = "rented-consumer-gpu"
+notes = "The mid-range tier of the current generation."

@@ -1,0 +1,33 @@
+# MOT16-08: a wide pedestrian shopping street from a fixed camera at eye level,
+# about twenty-three people in frame at a time. The "high" level of the
+# person-count factor (protocol v2 §4.2, ADR-0006). Same source, same style of
+# shot and same camera height as MOT16-09, so the two differ in the count and
+# little else.
+#
+# See experiments/mot16-09.toml for the benchmark, the recipe and the terms;
+# this sequence is in the test split of the same archive:
+#
+#   unzip -q datasets/_download/MOT16.zip "test/MOT16-08/*" -d datasets/_download/mot16-extract
+#   cp -R datasets/_download/mot16-extract/test/MOT16-08 datasets/mot16/MOT16-08
+schema_version = 1
+name = "mot16-08"
+description = "MOT16-08, MOTChallenge: pedestrian shopping street, fixed camera, about twenty-three people."
+seed = 0
+
+[ingest]
+source_path = "../datasets/mot16/MOT16-08/img1"
+# seqinfo.ini: frameRate=30, seqLength=625, 1920x1080.
+image_fps = 30.0
+frame_stride = 1
+
+[provenance]
+title = "MOT16-08 (MOTChallenge MOT16 benchmark, test split)"
+author = "Milan, Leal-Taixé, Reid, Roth and Schindler (MOTChallenge)"
+source_url = "https://motchallenge.net/data/MOT16/"
+download_url = "https://motchallenge.net/data/MOT16.zip"
+licence = "Publicly available for research with citation of the benchmark paper; no licence text published, not redistributed here"
+acquired_on = 2026-09-15
+original_sha256 = "b944a7ddf0fbce8742a238b9717658d26a8810ab8595e94ba7b0d9ffad3a291b"
+original_bytes = 1954509127
+derivation = "unzip MOT16.zip test/MOT16-08/*; the 625 JPEG frames of img1/ are read directly as an image directory, no transcode"
+expected_sha256 = "1eca56810a1326253a8d95449f8b717f4357285d47723325f5f8edb9e977793a"

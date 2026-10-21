@@ -1,0 +1,140 @@
+# Common joints between MuPoTS-3D and Anny.
+#
+# Both sides are sourced, not inferred. ADR-0004 §5.5 forbids matching by array
+# length or by similar-looking indices, and doing so here would have been easy
+# and wrong twice over — see docs/notes/2026-09-10-joint-mapping-sourced.md.
+#
+# MuPoTS side: the 17-joint "relevant" set the official MATLAB evaluator uses,
+# read from mpii_get_joints.m in mupots-3d-eval.zip
+# (sha256 5a1083c5e96cbdaeccc9b14a661712369324f08fc5dd87b12c52c328b12c1171).
+#
+# Anny side: bone labels read from the model this checkpoint actually loads,
+# 163 of them, index 0 = "root". The `anny` package's own default rig has 104
+# bones in a different order; using it would have silently shifted every arm
+# joint by two.
+#
+# Semantics: upstream computes j3d = bone_poses[:, :, :3, -1], the translation
+# column of each bone's posed transform — that is the bone's ORIGIN, not its
+# tail. So a limb joint is named by the bone that starts at it: the knee is
+# where the shin begins.
+#
+# Verified numerically on artifacts/pedestrians/bodies/4f4f09628526, medians
+# over 3,350 detections: femur 41.9 cm, tibia 40.0 cm, forearm 23.2 cm,
+# pelvis-to-head 71.7 cm. A wrong bone-end reading would not produce a skeleton
+# with human proportions.
+
+schema_version = 1
+identifier = "mupots-3d-to-anny-v1"
+description = "14 joints: pelvis plus the 13 official PCK joints that map unambiguously."
+
+anny_package_version = "0.6.0"
+anny_bone_count = 163
+checkpoint_sha256 = "fd2d9ab7010a5f590a3db2480f5f476fd3ec6afbbde80babbec0d821ba9763d6"
+
+# --- root ------------------------------------------------------------------
+# Not in any official PCK group, but both root alignment and the absolute-depth
+# metrics are defined against it, so it is the one joint that must be here.
+
+[[joints]]
+name = "pelvis"
+provenance = "MuPoTS joint 15 is its pelvis and the evaluator subtracts it for root alignment. Anny bone 0 is 'root'; upstream names it explicitly, computing transl_pelvis from j3d index 0."
+mupots = { names = ["pelvis"] }
+anny = { names = ["root"] }
+
+# --- upper body ------------------------------------------------------------
+
+[[joints]]
+name = "neck"
+provenance = "Base of the neck. Anny's neck01 is the first cervical bone, so its origin is where the neck leaves the trunk."
+mupots = { names = ["neck"] }
+anny = { names = ["neck01"] }
+
+[[joints]]
+name = "left_shoulder"
+provenance = "The glenohumeral joint: where the upper arm begins. upperarm01.L starts there."
+mupots = { names = ["left_shoulder"] }
+anny = { names = ["upperarm01.L"] }
+
+[[joints]]
+name = "right_shoulder"
+provenance = "As left_shoulder, mirrored."
+mupots = { names = ["right_shoulder"] }
+anny = { names = ["upperarm01.R"] }
+
+[[joints]]
+name = "left_elbow"
+provenance = "Where the forearm begins. Measured at 25.8 cm from the shoulder on real detections, a humerus."
+mupots = { names = ["left_elbow"] }
+anny = { names = ["lowerarm01.L"] }
+
+[[joints]]
+name = "right_elbow"
+provenance = "As left_elbow, mirrored."
+mupots = { names = ["right_elbow"] }
+anny = { names = ["lowerarm01.R"] }
+
+[[joints]]
+name = "left_wrist"
+provenance = "Anny has a dedicated wrist.L bone; its origin is the wrist. Measured at 23.2 cm from the elbow, a forearm."
+mupots = { names = ["left_wrist"] }
+anny = { names = ["wrist.L"] }
+
+[[joints]]
+name = "right_wrist"
+provenance = "As left_wrist, mirrored."
+mupots = { names = ["right_wrist"] }
+anny = { names = ["wrist.R"] }
+
+# --- lower body ------------------------------------------------------------
+
+[[joints]]
+name = "left_hip"
+provenance = "The hip joint: where the thigh begins. upperleg01.L starts there. Not pelvis.L, which is a pelvic bone rather than the joint."
+mupots = { names = ["left_hip"] }
+anny = { names = ["upperleg01.L"] }
+
+[[joints]]
+name = "right_hip"
+provenance = "As left_hip, mirrored."
+mupots = { names = ["right_hip"] }
+anny = { names = ["upperleg01.R"] }
+
+[[joints]]
+name = "left_knee"
+provenance = "Where the shin begins. Measured at 41.9 cm from the hip on real detections, a femur."
+mupots = { names = ["left_knee"] }
+anny = { names = ["lowerleg01.L"] }
+
+[[joints]]
+name = "right_knee"
+provenance = "As left_knee, mirrored."
+mupots = { names = ["right_knee"] }
+anny = { names = ["lowerleg01.R"] }
+
+[[joints]]
+name = "left_ankle"
+provenance = "Where the foot begins. Measured at 40.0 cm from the knee on real detections, a tibia."
+mupots = { names = ["left_ankle"] }
+anny = { names = ["foot.L"] }
+
+[[joints]]
+name = "right_ankle"
+provenance = "As left_ankle, mirrored."
+mupots = { names = ["right_ankle"] }
+anny = { names = ["foot.R"] }
+
+# --- deliberately absent ---------------------------------------------------
+#
+# Three of the 17 MuPoTS joints are not mapped, and their absence is declared
+# rather than quietly dropped:
+#
+#   head_top  Anny has no crown-of-the-skull bone. This one IS in an official
+#             PCK group, so the reported PCK covers 13 of the official 14 and
+#             must say so.
+#   head      Anny's `head` bone origin is the base of the skull. Whether MuPoTS
+#             joint 17 means the same point is not established, and a head
+#             landmark off by a few centimetres would flatter or punish the
+#             model for nothing. Not in a PCK group.
+#   spine     Anny has spine01 through spine05; which one MuPoTS calls "spine"
+#             is a guess. ADR-0004 §5.5 admits spine landmarks only when both
+#             definitions match. Not in a PCK group.

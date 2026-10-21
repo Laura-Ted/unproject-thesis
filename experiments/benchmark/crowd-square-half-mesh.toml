@@ -1,0 +1,13 @@
+# RQ1/RQ2 matrix cell. Warm-up, measured frames and repetitions are the same in
+# every cell and are fixed by docs/experiments/protocol.md; only the factors
+# vary. Changing any of them invalidates the comparison, not just this cell.
+schema_version = 1
+name = "crowd-square-half-mesh"
+description = "Matrix cell: crowd-square-half, mesh output."
+
+experiment = "../crowd-square-half.toml"
+
+warmup_frames = 5
+measured_frames = 40
+repetitions = 3
+output = "mesh"

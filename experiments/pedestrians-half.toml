@@ -1,0 +1,36 @@
+# pedestrians at half resolution: the same content scaled to 960x540. The
+# resolution factor of the RQ2 matrix, protocol v2 (ADR-0005 WP2).
+#
+#   ffmpeg -y -i datasets/pedestrians/clip.mp4 -vf "scale=960:540" \
+#       -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an \
+#       datasets/pedestrians-half/clip.mp4
+#
+# Note what the model sees: it resizes the long edge to 768 whatever the
+# source, so both this and the full-resolution clip reach it as a 768x432
+# tensor (432 rows is a whole number of patches, so no padding). The factor tests decoding, resizing and the
+# detail that survives, not the tensor size - which is why v1 found resolution
+# barely mattered.
+schema_version = 1
+name = "pedestrians-half"
+description = "pedestrians scaled to 960x540. Same content, half the pixels."
+seed = 0
+
+[ingest]
+source_path = "../datasets/pedestrians-half/clip.mp4"
+frame_stride = 1
+
+[provenance]
+title = "Video Codec Test: pedestrian area, 1080p25 (scaled to 960x540)"
+author = "Wikimedia Commons contributor (see the source page); a standard video-codec test sequence"
+source_url = "https://commons.wikimedia.org/wiki/File:Video_Codec_Test_pedestrian_area_1080p25.y4m.webm"
+licence = "CC0 1.0 Universal (public domain dedication)"
+acquired_on = 2026-09-06
+original_sha256 = "bfadaa62cccb42db875d50bb842aa0964fbf72040432e4097c1df59e043e0c26"
+original_bytes = 11215394
+derivation = "as pedestrians.toml, then: ffmpeg -y -i datasets/pedestrians/clip.mp4 -vf scale=960:540 -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an datasets/pedestrians-half/clip.mp4"
+download_url = "https://upload.wikimedia.org/wikipedia/commons/a/ae/Video_Codec_Test_pedestrian_area_1080p25.y4m.webm"
+# The campaign's bytes (ADR-0006 §5): the file as transcoded on machine B with
+# ffmpeg 9.0.1 on 2026-09-15, 5071080 bytes, carried to every other machine
+# as is and deposited with the evidence. A transcode made elsewhere is not the
+# same file, and the preflight says so.
+expected_sha256 = "cc905211bf0a44fbbb0ea7a12235523581d76b669159ce58c8fe2d2b7c387c5a"

@@ -1,0 +1,46 @@
+# MOT16-09: a shop front on a pedestrian street, filmed from a fixed camera at
+# eye level; people walk towards and past it, about eleven in frame at a time.
+# The "medium" level of the person-count factor (protocol v2 §4.2, ADR-0006),
+# at the same count as the pedestrians clip in a different scene.
+#
+# The sequence is one of the fourteen of MOT16, the pedestrian-tracking
+# benchmark of MOTChallenge (Milan, Leal-Taixé, Reid, Roth, Schindler, "MOT16:
+# A Benchmark for Multi-Object Tracking", arXiv:1603.00831, 2016), which ships
+# frames as numbered JPEGs. They are read as an image directory, so no
+# transcode stands between the benchmark's bytes and the campaign's: the
+# digest below is the ordered content digest of the 525 files as the ingest
+# computes it, and every machine's preflight checks it.
+#
+#   mkdir -p datasets/_download datasets/mot16
+#   curl -L -o datasets/_download/MOT16.zip https://motchallenge.net/data/MOT16.zip
+#   shasum -a 256 datasets/_download/MOT16.zip     # must print original_sha256 below
+#   unzip -q datasets/_download/MOT16.zip "train/MOT16-09/*" -d datasets/_download/mot16-extract
+#   cp -R datasets/_download/mot16-extract/train/MOT16-09 datasets/mot16/MOT16-09
+#
+# `benchmarks/fetch-datasets.sh` does the same and verifies the digests.
+#
+# Terms: the benchmark is publicly downloadable for research and asks to be
+# cited; no licence text accompanies it, so its frames are not printed in the
+# thesis and are not redistributed - only this recipe and the digests are.
+schema_version = 1
+name = "mot16-09"
+description = "MOT16-09, MOTChallenge: shop front on a pedestrian street, fixed camera, about eleven people."
+seed = 0
+
+[ingest]
+source_path = "../datasets/mot16/MOT16-09/img1"
+# seqinfo.ini: frameRate=30, seqLength=525, 1920x1080.
+image_fps = 30.0
+frame_stride = 1
+
+[provenance]
+title = "MOT16-09 (MOTChallenge MOT16 benchmark, training split)"
+author = "Milan, Leal-Taixé, Reid, Roth and Schindler (MOTChallenge)"
+source_url = "https://motchallenge.net/data/MOT16/"
+download_url = "https://motchallenge.net/data/MOT16.zip"
+licence = "Publicly available for research with citation of the benchmark paper; no licence text published, not redistributed here"
+acquired_on = 2026-09-15
+original_sha256 = "b944a7ddf0fbce8742a238b9717658d26a8810ab8595e94ba7b0d9ffad3a291b"
+original_bytes = 1954509127
+derivation = "unzip MOT16.zip train/MOT16-09/*; the 525 JPEG frames of img1/ are read directly as an image directory, no transcode"
+expected_sha256 = "6b1238af32a4931ba848ac587d81ccffeabc77b7b418723424e9b3cf5dca4999"

@@ -1,0 +1,562 @@
+:root {
+  --bg: #0f1419;
+  --panel: #151b23;
+  --line: #22303c;
+  --text: #cbd5e1;
+  --muted: #6b7f8f;
+  --accent: #c3e88d;
+  --warn: #ffb454;
+
+  color-scheme: dark;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+
+/* Rail down the side, the two panes filling the rest, one status line under
+   them. The panes are equal halves: neither is the subject. */
+.app {
+  display: grid;
+  /* --rail is set from the layout the operator dragged to; the fallback is what
+     it was before this became adjustable. */
+  grid-template-columns: var(--rail, 17rem) 3px 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    'rail rail-split panes'
+    'rail rail-split status';
+  height: 100%;
+}
+
+.rail {
+  grid-area: rail;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+  overflow-y: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+
+.rail h1 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.rail header p {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.rail h2 {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.inputs {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.button {
+  display: block;
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: center;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(1.08);
+}
+
+/* The file input is the label; showing it as well would be two controls for
+   one action. */
+.button input[type='file'] {
+  display: none;
+}
+
+.runs {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.run {
+  display: grid;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.run:hover {
+  border-color: var(--muted);
+}
+
+.run.selected {
+  border-color: var(--accent);
+}
+
+.run .name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.run .hash,
+.run .stat {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.run .hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.detail {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.7rem;
+  margin: 0;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+}
+
+.detail dt {
+  color: var(--muted);
+}
+
+.detail dd {
+  margin: 0;
+}
+
+.muted {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.empty,
+.error {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.error {
+  padding: 0.5rem 0.6rem;
+  color: #f07178;
+  background: #2a1a1e;
+  border-radius: 5px;
+}
+
+.panes {
+  grid-area: panes;
+  display: grid;
+  /* A percentage, not a fraction: calc() cannot multiply an fr, and a rejected
+     grid-template-columns takes the splitter's own width down with it. */
+  grid-template-columns: var(--source, 50%) 3px minmax(0, 1fr);
+  grid-template-areas: 'video pane-split stage';
+  min-height: 0;
+}
+
+.pane.video {
+  grid-area: video;
+}
+
+.pane.stage {
+  grid-area: stage;
+}
+
+/* Three pixels wide, with a comfortable grab area either side of it. */
+.splitter {
+  background: var(--line);
+  cursor: col-resize;
+  position: relative;
+  touch-action: none;
+}
+
+.splitter::after {
+  content: '';
+  inset: 0 -4px;
+  position: absolute;
+}
+
+.splitter:hover,
+.splitter:active {
+  background: var(--accent);
+}
+
+.pane {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.pane + .pane {
+  border-left: 1px solid var(--line);
+}
+
+/* Labels sit over the content rather than taking a row, so the two panes stay
+   the same size whatever is in them. */
+.pane h3 {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.75rem;
+  z-index: 1;
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.pane.stage {
+  background: var(--bg);
+}
+
+.source-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* Safari ignores controlsList, so the buttons that do not belong on a pane
+   read beside another one have to be taken out of the shadow controls by
+   hand: the two that would hide the other pane, and the skip that lands the
+   footage fifteen seconds away from the bodies. */
+.source-video::-webkit-media-controls-fullscreen-button,
+.source-video::-webkit-media-controls-picture-in-picture-button,
+.source-video::-webkit-media-controls-seek-forward-button {
+  display: none;
+}
+
+.placeholder {
+  margin: 0;
+  padding: 0 2rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.views {
+  position: absolute;
+  bottom: 0.7rem;
+  left: 50%;
+  display: flex;
+  gap: 0.3rem;
+  transform: translateX(-50%);
+}
+
+.views button {
+  padding: 0.28rem 0.6rem;
+  font: inherit;
+  font-size: 0.74rem;
+  color: var(--text);
+  background: rgb(15 20 25 / 85%);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.views button.selected {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.status {
+  grid-area: status;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.76rem;
+  color: var(--muted);
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+}
+
+.controls {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+
+.slider {
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.slider span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.slider b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.slider input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.slider.disabled {
+  opacity: 0.45;
+}
+
+/* Two ways of drawing the same bodies, so one control with two states rather
+   than a box claiming one of them is the correction. */
+.figure {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.figure div {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.figure button {
+  flex: 1;
+  padding: 0.28rem 0.6rem;
+  font: inherit;
+  font-size: 0.74rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.figure button.selected {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.figure button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.switch {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.switch input {
+  accent-color: var(--accent);
+}
+
+.switch.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* The track list. One row per track, and the swatch matches the body colour. */
+.tracks {
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+}
+
+.tracks h2 .count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.tracks .link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0 0 0.4rem;
+}
+
+.tracks ul {
+  list-style: none;
+  margin: 0;
+  /* Long enough to show the fragmentation, short enough to leave the controls
+     above it reachable without scrolling past everything. */
+  max-height: 15rem;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.tracks li {
+  align-items: center;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.1rem 0;
+}
+
+.tracks li.selected {
+  background: var(--line);
+  border-radius: 4px;
+}
+
+.tracks .pick {
+  align-items: baseline;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  font: inherit;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.15rem 0.2rem;
+  text-align: left;
+}
+
+.tracks .swatch {
+  border-radius: 2px;
+  display: inline-block;
+  flex: none;
+  height: 0.7rem;
+  width: 0.7rem;
+}
+
+.tracks .id {
+  flex: none;
+  font-size: 0.8rem;
+}
+
+.tracks .span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tracks .only {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+  cursor: pointer;
+  flex: none;
+  font: inherit;
+  font-size: 0.7rem;
+  padding: 0.05rem 0.3rem;
+}
+
+.tracks .only:hover {
+  color: var(--text);
+}
+
+.tracks .stats {
+  display: grid;
+  gap: 0.1rem 0.6rem;
+  grid-template-columns: auto 1fr;
+  margin: 0.6rem 0 0;
+}
+
+.tracks .stats dt {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.tracks .stats dd {
+  font-size: 0.74rem;
+  margin: 0;
+}
+
+.tracks .stats .empty {
+  color: var(--muted);
+  font-size: 0.74rem;
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* Removing a run. Hidden until hovered: it is irreversible, so it should not
+   invite a stray click while somebody is aiming at the run beside it. */
+.runs li {
+  align-items: stretch;
+  display: flex;
+  gap: 0.2rem;
+}
+
+.runs .remove {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: transparent;
+  cursor: pointer;
+  flex: none;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.4rem;
+}
+
+.runs li:hover .remove {
+  color: var(--muted);
+}
+
+.runs .remove:hover {
+  background: var(--line);
+  color: var(--warn);
+}
+
+.runs .remove:focus-visible {
+  color: var(--warn);
+}

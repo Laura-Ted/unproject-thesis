@@ -1,0 +1,20 @@
+# Tanks and Temples "truck", from the input data of the original 3DGS paper. A
+# 251-image orbit around a vehicle outdoors: a second scene, so a finding on
+# garden alone is not a finding about one capture.
+schema_version = 1
+name = "truck"
+description = "Tanks and Temples truck, learned pose backend. Pairs with truck.toml."
+seed = 0
+
+[ingest]
+source_path = "../datasets/truck/images"
+image_fps = 2.0
+frame_stride = 1
+
+[pose]
+backend = "lingbot"
+
+[pose.lingbot]
+kv_cache_sliding_window = 16
+num_scale_frames = 2
+dtype = "bfloat16"

@@ -1,0 +1,24 @@
+# A locked-off shot of people walking through a park. Deliberately a case both
+# backends should struggle with, kept because the failure is a result.
+#
+# Two things work against it. The camera barely moves over the 24 seconds, so
+# there is almost no parallax to triangulate from; and the moving people fill
+# much of the frame while the static background behind them is thrown out of
+# focus by a long lens. Structure from motion needs the opposite of both.
+#
+# Stride 2 keeps the whole time span, which is where what little baseline exists
+# has to come from, at half the frames.
+schema_version = 1
+name = "crowd"
+description = "People walking, near-static camera. A documented hard case."
+seed = 0
+
+[ingest]
+source_path = "../datasets/crowd/clip.mp4"
+frame_stride = 2
+
+[pose]
+backend = "colmap"
+
+[pose.colmap]
+matcher = "sequential"

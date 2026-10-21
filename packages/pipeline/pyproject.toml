@@ -1,0 +1,73 @@
+[project]
+name = "unproject-pipeline"
+version = "0.1.0"
+description = "Reconstruction pipeline: ingest, preprocess, pose, train, evaluate"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    # Agg only: the analysis writes files and never opens a window, same
+    # reasoning as the headless OpenCV build below. A thesis figure has to be
+    # regenerable from the raw observations rather than kept as an image, so
+    # this is on the required path rather than an extra.
+    "matplotlib>=3.9",
+    "numpy>=2.1",
+    # Headless: the pipeline never opens a window, and the GUI build pulls in
+    # Qt, which is dead weight in a worker process.
+    "opencv-python-headless>=4.10",
+    "pycolmap>=4.1.1",
+    "pydantic>=2.10",
+]
+
+[project.optional-dependencies]
+# Stage [3]'s learned backend. Roughly 3 GB of wheels plus 4.6 GB of weights, so
+# it stays out of the default install: the COLMAP path is what most runs use.
+# The model is pinned to a commit, not a branch, because upstream is active.
+lingbot = [
+    "torch>=2.6",
+    # The model's own image preprocessing goes through torchvision transforms.
+    "torchvision>=0.21",
+    "lingbot-map @ git+https://github.com/Robbyant/lingbot-map@1740f18ead3cca8e0e07dd0ec6b7030d22f0894c",
+    "einops>=0.8",
+    "safetensors>=0.4",
+    "huggingface-hub>=0.26",
+    "Pillow>=11.0",
+    "tqdm>=4.66",
+    "scipy>=1.14",
+]
+
+# Dataset parsers for the ground-truth evaluation, per ADR-0004 §5.7. Kept out
+# of the default install because nobody running the viewer needs them.
+#
+# Why scipy: MuPoTS ships MATLAB 5.0 .mat files, and `scipy.io.loadmat` is the
+# documented safe reader for them. It is not HDF5, so h5py would not help, and
+# there is no pickle anywhere in the release - §5.7 forbids deserialising one
+# just because an official sample script does. macOS ARM64 wheels exist; the
+# licence is BSD-3-Clause. The import lives only in `ground_truth.mupots`.
+ground-truth = [
+    "scipy>=1.14",
+]
+
+# Stage [B]'s estimator, pinned to a commit because upstream is active. Kept
+# separate from `lingbot`: a bodies run should not pull 4.6 GB of pose weights.
+multihmr = [
+    "torch>=2.6",
+    "torchvision>=0.21",
+    "multihmr2 @ git+https://github.com/naver/multi-hmr2@f066532d096034700e5ba8b7b1ca655729d3ea6e",
+    # The body model. Apache-2.0 and carries its own mesh data, so there is no
+    # licence wall to get through.
+    "anny>=0.6",
+    "Pillow>=11.0",
+]
+
+[project.scripts]
+unproject = "unproject.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+# The model has no PyPI release, so the `lingbot` extra names a git commit.
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/unproject"]

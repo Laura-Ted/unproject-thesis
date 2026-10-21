@@ -1,0 +1,42 @@
+# The estimator settings every MuPoTS sequence is run with.
+#
+# This file exists so the ground-truth evaluation reaches stage [B] through the
+# ordinary experiment path rather than a second copy of it. Only two fields are
+# overridden per sequence - the name, which becomes the artifact directory, and
+# the ingest source, which becomes that sequence's frame directory. Everything
+# below is inherited unchanged by all 20, which is what makes them comparable
+# with each other and with the project's own clips.
+#
+# The [bodies] section is left at its defaults deliberately: the checkpoint
+# digest and backbone revision pinned in `BodiesConfig` are the ones the RQ1-RQ3
+# runs used, and changing them here would compare a different model against
+# published numbers.
+schema_version = 1
+name = "mupots"
+description = "Multi-HMR 2 over one MuPoTS-3D test sequence. Source path is overridden per sequence."
+seed = 0
+
+[ingest]
+# A placeholder that is always replaced; it points at TS1 so this file still
+# validates and still runs on its own.
+source_path = "../../datasets/mupots-3d/MultiPersonTestSet/TS1"
+
+# NOT VERIFIED, and the only number here that is not. MuPoTS ships numbered
+# jpgs and states no capture rate; the eval archive does not mention one either
+# (docs/notes/2026-09-09-mupots-release-inspected.md). Nothing measured in this
+# benchmark is per-second except MPJVE, so every other metric is unaffected by
+# this value being wrong - and MPJVE must stay unreported until the rate is
+# sourced from the 3DV 2018 paper or the authors. 30 is written here because
+# ingest requires a positive rate for a frame directory, not because it is known.
+image_fps = 30.0
+
+# Both must stay at their defaults: the annotations are indexed by frame, so
+# dropping or truncating frames would silently score frame N against a different
+# moment. `run_sequence` refuses when the two counts disagree.
+frame_stride = 1
+
+[bodies]
+# One level deeper than the other experiments, so the default "../models" would
+# make a second 1.5 GB copy of the same checkpoint under experiments/. Not part
+# of the run's identity - `sha256` says which weights, this only says where.
+cache_dir = "../../models"

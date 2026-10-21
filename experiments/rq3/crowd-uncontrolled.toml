@@ -1,0 +1,26 @@
+# NOT a controlled scene, and deliberately so.
+#
+# The RQ3 case study needs floor marks measured with a tape and a consenting
+# participant standing on them. That recording does not exist. This file lets
+# the part of RQ3 that needs no ground truth be measured on the footage that
+# does exist: reprojection consistency, within-track shape variation, track
+# counts, and depth jitter against range.
+#
+# It declares no markers and no intervals, so no position error is computed and
+# none is reported. `scene.participants` is set to 1 because the field is
+# required and the real number is unknown; `tracks_per_participant` is therefore
+# NOT interpretable for this scene and must not be quoted. `tracks`,
+# `median_track_seconds` and `longest_gap_seconds` are.
+
+schema_version = 1
+convention = "camera_relative_opencv_metres"
+name = "crowd.uncontrolled"
+
+# No marks were measured, so no position error is computed.
+markers = []
+
+[scene]
+description = "People walking through a park, locked-off camera. No ground truth."
+participants = 1
+annotated_by = "not annotated; there is nothing here to annotate"
+annotated_on = "2026-09-05"

@@ -1,0 +1,34 @@
+# MuPoTS-3D TS11: two people walking about and crossing each other in front of
+# a fixed camera at eye level on the MPI campus; whole bodies in frame, no
+# vehicles, 701 frames. The second "low" scene of the person-count factor
+# (protocol v2 §4.2, ADR-0006): two people for the first half, up to four
+# later, so its count sits just under TS10's three.
+#
+# Same dataset, terms, recipe and camera check as experiments/mupots-ts10.toml;
+# two low scenes for the same reason the suite has two medium ones: if their
+# cost agrees, the count and not the scene is what the low-against-medium
+# pair measures.
+#
+#   datasets/mupots-3d/MultiPersonTestSet/TS11/img_000000.jpg ... img_000700.jpg
+schema_version = 1
+name = "mupots-ts11"
+description = "MuPoTS-3D TS11: two people walking and crossing in front of a fixed camera, campus."
+seed = 0
+
+[ingest]
+source_path = "../datasets/mupots-3d/MultiPersonTestSet/TS11"
+# The dataset states no frame rate; assumed, and used for timestamps only.
+image_fps = 30.0
+frame_stride = 1
+
+[provenance]
+title = "MuPoTS-3D test sequence TS11 (MultiPersonTestSet)"
+author = "Mehta, Sotnychenko, Mueller, Xu, Sridhar, Pons-Moll and Theobalt (MPI for Informatics)"
+source_url = "https://vcai.mpi-inf.mpg.de/projects/SingleShotMultiPerson/"
+download_url = "https://gvv.mpi-inf.mpg.de/projects/SingleShotMultiPerson/MultiPersonTestSet.zip"
+licence = "MPI for Informatics licence (license.txt of mupots-3d-eval.zip): non-commercial research only, no redistribution, citation of Mehta et al. 3DV 2018 and 3DV 2017 required; not redistributed here"
+acquired_on = 2026-09-15
+original_sha256 = "0f5efe136e3692420c904b08c52fa42c7e70a27f955fbb2e7067909f848db136"
+original_bytes = 5642949208
+derivation = "unzip MultiPersonTestSet.zip MultiPersonTestSet/TS11/*; the 701 JPEG frames are read directly as an image directory (annot.mat and occlusion.mat beside them are ignored), no transcode"
+expected_sha256 = "351bddd5c8b6fc9facb5f05edba45ffba80295f1d73529717d1626909b86e03d"

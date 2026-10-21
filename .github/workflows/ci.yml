@@ -1,0 +1,111 @@
+# Every check that needs neither the model weights nor private footage.
+#
+# Linux rather than macOS, though the project targets Apple Silicon: this
+# repository is private, where macOS runners bill at ten times the rate. What
+# runs here is lint, types, unit tests and the frontend build - none of which
+# touch Metal - so the platform difference costs little (libomp, at the Tests
+# step, is the known exception). Performance is never measured here; a shared
+# runner cannot produce a number worth reporting, and the benchmark is run by
+# hand on the machines the protocol declares in benchmarks/machines.toml.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    name: pipeline and api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned exactly, unlike the three actions below: setup-uv publishes only
+      # version tags and no moving major one, so `@v10` does not resolve. Bump
+      # it by hand.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+
+      # One extra, and no weights. `ground-truth` is scipy, for MuPoTS's .mat
+      # files and the global matcher (ADR-0004 §5.7); the tests that cover them
+      # import it, so a checkout without it fails 22 of them with a
+      # ModuleNotFoundError rather than skipping. `multihmr` is deliberately
+      # absent: nothing below may need 1.6 GB of weights, and the estimator's
+      # own tests stand in for the model.
+      - name: Install dependencies
+        run: uv sync --dev --extra ground-truth
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format
+        run: uv run ruff format --check .
+
+      - name: Types
+        run: uv run mypy
+
+      # Two invocations, not one. pycolmap and torch each ship their own copy of
+      # libomp and abort a process that loads both (docs/reproduce.md §6), so
+      # the tests under packages/pipeline/tests/needs_pycolmap/ get a process to
+      # themselves. The split is made at collection time by the openmp_guard
+      # plugin (packages/pipeline/tests/openmp_guard.py, loaded by `addopts` in
+      # pyproject.toml), which also fails any test that crosses it. On Linux the
+      # two happen to coexist today; the split keeps the gate honest on macOS,
+      # where a single invocation dies partway and reports nothing.
+      - name: Tests
+        run: uv run pytest
+
+      - name: Tests (pycolmap, isolated)
+        run: uv run pytest --pycolmap
+
+      # Guards the reproducibility path: every config under experiments/, of
+      # whichever kind, still parses against the current schemas.
+      - name: Configs
+        run: uv run unproject validate-config experiments/
+
+      - name: Lockfile is current
+        run: uv lock --check
+
+  viewer:
+    name: viewer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Types
+        run: pnpm compile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      # Production dependencies only: dev tooling is not shipped, and the gate
+      # ADR-0005 §4 WP0 names is the one a reader's install actually meets.
+      - name: Audit
+        run: pnpm audit --prod

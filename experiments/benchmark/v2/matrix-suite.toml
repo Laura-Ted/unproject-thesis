@@ -1,0 +1,102 @@
+# The RQ1/RQ2 matrix under protocol v2 (§3-§4.1), on MOT16-09. See
+# docs/experiments/protocol-v2.md, which this file implements and which is
+# frozen; changing a value here after a measurement has been taken needs a
+# dated note.
+#
+# One policy for every cell: five warm-up frames, sixty measured frames spread
+# along the sequence, three repetitions, every (cell, repetition) in a fresh
+# process, in an order shuffled with the seed below and recorded in every
+# result. The cells are the three factors of ADR-0002 §8.3 that one sequence
+# can carry - aspect ratio, resolution, output mode - fully crossed. The
+# person-count factor is measured by people-suite.toml; people per frame is
+# recorded here as a description of the scene.
+#
+# The four geometries are the ingest's (`[ingest.geometry]` of the four
+# experiments): the same 525 official JPEG frames, halved by an exact box
+# average and/or letterboxed with black bands, so every machine derives the
+# same bytes from the same archive and nothing is transcoded or carried. This
+# replaced the CC0 pedestrians clip and its three ffmpeg transcodes on
+# 2026-09-15, before any campaign measurement (protocol v2 §3, dated note):
+# the campaign's inputs are the two research datasets, MOT16 and MuPoTS-3D.
+schema_version = 2
+name = "rq1rq2-v2-matrix"
+description = "Aspect ratio x resolution x output on MOT16-09, geometries by the ingest, one process per job."
+protocol = "rq1rq2-v2"
+
+warmup_frames = 5
+measured_frames = 60
+repetitions = 3
+frame_selection = "spread"
+order_seed = 20260915
+
+[[cells]]
+name = "mot16-09-skeleton"
+experiment = "../../mot16-09.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-09-mesh"
+experiment = "../../mot16-09.toml"
+output = "mesh"
+
+[[cells]]
+name = "mot16-09-half-skeleton"
+experiment = "../../mot16-09-half.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-09-half-mesh"
+experiment = "../../mot16-09-half.toml"
+output = "mesh"
+
+[[cells]]
+name = "mot16-09-letterbox-skeleton"
+experiment = "../../mot16-09-letterbox.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-09-letterbox-mesh"
+experiment = "../../mot16-09-letterbox.toml"
+output = "mesh"
+
+[[cells]]
+name = "mot16-09-letterbox-half-skeleton"
+experiment = "../../mot16-09-letterbox-half.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-09-letterbox-half-mesh"
+experiment = "../../mot16-09-letterbox-half.toml"
+output = "mesh"
+
+# Paired differences on the same frames, b minus a. Each pair changes one
+# factor and holds the other two.
+[[pairs]]
+a = "mot16-09-skeleton"
+b = "mot16-09-mesh"
+question = "output mode at 1920x1080"
+
+[[pairs]]
+a = "mot16-09-letterbox-skeleton"
+b = "mot16-09-letterbox-mesh"
+question = "output mode at 1920x1920"
+
+[[pairs]]
+a = "mot16-09-skeleton"
+b = "mot16-09-letterbox-skeleton"
+question = "aspect ratio, same content and scale, at full resolution"
+
+[[pairs]]
+a = "mot16-09-half-skeleton"
+b = "mot16-09-letterbox-half-skeleton"
+question = "aspect ratio, same content and scale, at half resolution"
+
+[[pairs]]
+a = "mot16-09-half-skeleton"
+b = "mot16-09-skeleton"
+question = "resolution, 960 against 1920 long edge, 16:9"
+
+[[pairs]]
+a = "mot16-09-letterbox-half-skeleton"
+b = "mot16-09-letterbox-skeleton"
+question = "resolution, 960 against 1920 long edge, 1:1"

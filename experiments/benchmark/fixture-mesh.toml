@@ -1,0 +1,13 @@
+# Same input and same frames as fixture-skeleton, so the pair isolates what the
+# mesh output costs: one unposed body per track, built the first time a person
+# is seen, which is what the socket sends.
+schema_version = 1
+name = "fixture-mesh"
+description = "The mesh half of the output factor, against fixture-skeleton."
+
+experiment = "../fixture.toml"
+
+warmup_frames = 2
+measured_frames = 8
+repetitions = 2
+output = "mesh"

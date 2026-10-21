@@ -1,0 +1,35 @@
+# MOT16-09 letterboxed to a square: the same 525 frames padded by the ingest
+# with black bands above and below (`geometry.letterbox_square = true`), so
+# the source is 1920x1920 and the model sees a 768x768 tensor. The aspect-ratio
+# factor of the matrix suite (protocol v2 §3.2): same content and same scale
+# of the people, only the tensor changes - the control the crowd clip's
+# centre crop could not give.
+#
+# Nothing is transcoded and nothing is carried: the frames are derived from
+# the official archive by the ingest on every machine, identically. The
+# digest below is the source directory's, as in experiments/mot16-09.toml.
+schema_version = 1
+name = "mot16-09-letterbox"
+description = "MOT16-09 padded to 1920x1920 by the ingest. Same content and scale, square tensor."
+seed = 0
+
+[ingest]
+source_path = "../datasets/mot16/MOT16-09/img1"
+# seqinfo.ini: frameRate=30, seqLength=525, 1920x1080.
+image_fps = 30.0
+frame_stride = 1
+
+[ingest.geometry]
+letterbox_square = true
+
+[provenance]
+title = "MOT16-09 (MOTChallenge MOT16 benchmark, training split)"
+author = "Milan, Leal-Taixé, Reid, Roth and Schindler (MOTChallenge)"
+source_url = "https://motchallenge.net/data/MOT16/"
+download_url = "https://motchallenge.net/data/MOT16.zip"
+licence = "Publicly available for research with citation of the benchmark paper; no licence text published, not redistributed here"
+acquired_on = 2026-09-15
+original_sha256 = "b944a7ddf0fbce8742a238b9717658d26a8810ab8595e94ba7b0d9ffad3a291b"
+original_bytes = 1954509127
+derivation = "as mot16-09.toml; the ingest pads every frame with 420 black rows above and below to 1920x1920"
+expected_sha256 = "6b1238af32a4931ba848ac587d81ccffeabc77b7b418723424e9b3cf5dca4999"

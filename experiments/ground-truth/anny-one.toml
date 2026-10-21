@@ -1,0 +1,43 @@
+# The secondary synthetic compatibility benchmark. Not independent evidence of
+# real-world accuracy: see the training-overlap gate in ADR-0004 §4.5 and the
+# protocol §6. The current classification is
+# "in-domain compatibility diagnostic", conservatively, because neither the
+# Multi-HMR 2 repository nor the paper abstract says what it was trained on.
+#
+# The release is 780,964 images across roughly 122 GB in 8 archives. A subset
+# manifest is mandatory and the config refuses to load without one.
+#
+# Obtain from https://europe.naverlabs.com/research/vision-foundation-models-for-human-understanding/anny-one/
+# and extract to datasets/anny-one/.
+schema_version = 2
+name = "anny-one-subset-v1"
+description = "A frozen 300-image subset. Never presented as full Anny-One performance."
+
+dataset = "anny-one"
+dataset_root = "../../datasets/anny-one"
+release = "unset: record the archive parts downloaded, and when"
+split = "subset-v1"
+subset_manifest = "subsets/anny-one-v1.txt"
+
+experiment = "../crowd.toml"
+mapping = "mappings/mupots-3d-to-anny-v1.toml"
+
+# Placeholders: the evaluator accepts only mupots-3d today, and an Anny-One
+# protocol would need its own identifier once one is written.
+metric_protocol = "unproject_mupots_14j_v1"
+matcher = "normalized_global_assignment"
+camera = "model_estimated"
+
+# Explicit rather than defaulted: the schema default is written relative to
+# experiments/, and these configs sit one level deeper, so leaving it out
+# would put results in experiments/artifacts/ instead of the artifact tree.
+output_root = "../../artifacts/ground-truth"
+
+[thresholds]
+pck_radius_mm = 150.0
+# Read by normalized_global_assignment: a fraction of the image diagonal.
+association_gate = 0.1
+depth_bins_metres = [2.0, 4.0, 6.0, 8.0]
+# Still images, so no temporal metric applies; the field is required by the
+# schema and this value is never read for this dataset.
+max_temporal_interval_seconds = 0.2

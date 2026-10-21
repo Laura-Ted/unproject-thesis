@@ -1,0 +1,56 @@
+# The primary real-video benchmark. See ADR-0004 and
+# docs/experiments/ground-truth-protocol.md.
+#
+# The dataset is NOT in this repository and will not be fetched by it: the
+# licence is the author's to read and accept. Obtain it from
+# https://vcai.mpi-inf.mpg.de/projects/SingleShotMultiPerson/ and extract it to
+# datasets/mupots-3d/.
+#
+# `release` is free text because MuPoTS publishes no version string. What
+# actually pins the content is the inventory hash recorded in the evaluation
+# descriptor, computed over the annotation files.
+#
+# Schema 2 (ADR-0005 WP1) names every choice by what it is. The result this
+# file produces is the *Unproject protocol on MuPoTS-3D*, a MuPoTS-compatible
+# project metric - 14 common joints, root-relative on annot3, greedy 40 px
+# association - and never the official evaluator's score.
+schema_version = 2
+name = "mupots-3d-test"
+description = "All 20 official test sequences under the Unproject protocol, model-estimated camera."
+
+dataset = "mupots-3d"
+dataset_root = "../../datasets/mupots-3d"
+release = "MultiPersonTestSet.zip, 5642949208 bytes, downloaded 2026-09-10"
+split = "test"
+
+experiment = "mupots-estimator.toml"
+mapping = "mappings/mupots-3d-to-anny-v1.toml"
+
+# Which definition of the metrics this is. Pelvis plus 13 of the 14 official
+# PCK joints (head_top has no Anny counterpart), root-relative error on annot3
+# rather than univ_annot3, micro and macro aggregation over matched people.
+metric_protocol = "unproject_mupots_14j_v1"
+
+# Person association. Reproduces the released evaluator's greedy pairing at
+# 40 px per axis; the radius is in the name because it is the algorithm's, not
+# a setting, which is also why no association_gate appears below.
+matcher = "mupots_greedy_2d_40px"
+
+# The control condition: the model guesses its own camera, as it does on any
+# clip in the wild. mupots-3d-annotation-derived-camera.toml is the treatment.
+camera = "model_estimated"
+
+# Explicit rather than defaulted: the schema default is written relative to
+# experiments/, and these configs sit one level deeper, so leaving it out
+# would put results in experiments/artifacts/ instead of the artifact tree.
+output_root = "../../artifacts/ground-truth"
+
+[thresholds]
+# The official radius. Millimetres, as the protocol states it.
+pck_radius_mm = 150.0
+# From the annotated distribution rather than round numbers: pelvis depth runs
+# 1.67-7.12 m with p5 2.37, median 3.62 and p95 5.94, so these bins split the
+# data rather than leaving the outer two nearly empty.
+depth_bins_metres = [2.5, 3.5, 4.5, 6.0]
+# Still open: the release ships numbered jpgs with no stated frame rate.
+max_temporal_interval_seconds = 0.2

@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+tmp/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+
+# Pipeline data. Datasets belong to DVC; artifacts are always reproducible
+# from a config; model weights are pinned by checksum in the config that uses
+# them, so they are refetched rather than committed.
+/datasets/
+/artifacts/
+/models/
+# Footage the operator dropped into the viewer. Same reasoning as datasets:
+# it is input, it may show identifiable people, and it is not ours to commit.
+/uploads/
+
+# macOS
+.DS_Store
+
+# Model weights, wherever a config points its cache. Never committed.
+**/models/
+
+# Secrets and per-machine config: never committed
+.env
+.env.*
+*.key

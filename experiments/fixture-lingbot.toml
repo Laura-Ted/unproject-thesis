@@ -1,0 +1,25 @@
+# The fixture scene through the learned backend instead of COLMAP.
+#
+# Same name as fixture.toml on purpose: the artifact directory is keyed by the
+# hash of each stage's config, so ingest and preprocess are shared with the
+# COLMAP run and only the pose stage differs. That is what makes the two
+# comparable - the backend is the only thing that changed.
+schema_version = 1
+name = "fixture"
+description = "Fixture scene, learned pose backend. Pairs with fixture.toml."
+seed = 0
+
+[ingest]
+source_path = "../datasets/fixture/clip.mp4"
+frame_stride = 1
+
+[pose]
+backend = "lingbot"
+
+[pose.lingbot]
+# Measured on an M3 Pro, 18 GB: the upstream default window of 64 peaks near
+# 16 GB and keeps growing with the sequence, while 16 holds flat around 10 GB
+# from 16 frames to 160. See "The learned backend" in README.md.
+kv_cache_sliding_window = 16
+num_scale_frames = 2
+dtype = "bfloat16"

@@ -1,0 +1,11 @@
+# A controlled transformation of experiments/crowd.toml, for the RQ2 matrix.
+# The exact ffmpeg command that produced the footage is in
+# docs/experiments/protocol.md §2; nothing else about the run differs.
+schema_version = 1
+name = "crowd-square-half"
+description = "The crowd clip, transformed. See the protocol for the transformation."
+seed = 0
+
+[ingest]
+source_path = "../datasets/crowd-square-half/clip.mp4"
+frame_stride = 2

@@ -1,0 +1,43 @@
+# A pedestrian street in Munich, stationary camera. The clip the crowd one
+# should have been: public domain, so nothing about using it is in doubt.
+#
+# Every fact about where it came from is in [provenance] below, structured so
+# a benchmark result carries it (ADR-0005 WP2). The transcode is the same as
+# every other clip here, because the pipeline decodes with OpenCV and the
+# artifact stores lossless PNG either way:
+#
+#   mkdir -p datasets/_download datasets/pedestrians
+#   curl -L -o datasets/_download/pedestrian_area.webm \
+#     https://upload.wikimedia.org/wikipedia/commons/a/ae/Video_Codec_Test_pedestrian_area_1080p25.y4m.webm
+#   shasum -a 256 datasets/_download/pedestrian_area.webm   # must print the digest below
+#   ffmpeg -y -i datasets/_download/pedestrian_area.webm \
+#       -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an \
+#       datasets/pedestrians/clip.mp4
+#
+# stride 1, unlike crowd.toml: the tracker carries identities from one frame to
+# the next, so dropping every other frame handicaps exactly the thing this clip
+# is here to show. 375 frames at 25 fps, 1920x1080.
+schema_version = 1
+name = "pedestrians"
+description = "Munich pedestrian street, CC0. About ten people, whole bodies in frame."
+seed = 0
+
+[ingest]
+source_path = "../datasets/pedestrians/clip.mp4"
+frame_stride = 1
+
+[provenance]
+title = "Video Codec Test: pedestrian area, 1080p25"
+author = "Wikimedia Commons contributor (see the source page); a standard video-codec test sequence"
+source_url = "https://commons.wikimedia.org/wiki/File:Video_Codec_Test_pedestrian_area_1080p25.y4m.webm"
+licence = "CC0 1.0 Universal (public domain dedication)"
+acquired_on = 2026-09-06
+original_sha256 = "bfadaa62cccb42db875d50bb842aa0964fbf72040432e4097c1df59e043e0c26"
+original_bytes = 11215394
+derivation = "ffmpeg -y -i datasets/_download/pedestrian_area.webm -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -an datasets/pedestrians/clip.mp4"
+download_url = "https://upload.wikimedia.org/wikipedia/commons/a/ae/Video_Codec_Test_pedestrian_area_1080p25.y4m.webm"
+# The campaign's bytes (ADR-0006 §5): the file as transcoded on machine B with
+# ffmpeg 9.0.1 on 2026-09-15, 15046088 bytes, carried to every other machine
+# as is and deposited with the evidence. A transcode made elsewhere is not the
+# same file, and the preflight says so.
+expected_sha256 = "bee88f74b86eb44522a0682e7a93af6d5ff5102c84321395e235b87bfc0c36d3"

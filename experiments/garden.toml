@@ -1,0 +1,25 @@
+# Mip-NeRF 360 "garden", the reference scene of the 3DGS literature. A full
+# handheld orbit around a table, strong texture everywhere, which is the
+# opposite of the synthetic fixture and the first scene these numbers mean
+# anything on.
+#
+# The capture is 185 stills rather than video, so `image_fps` only fixes the
+# timestamps; nothing downstream reads a real frame rate from it.
+schema_version = 1
+name = "garden"
+description = "Mip-NeRF 360 garden: 185-image handheld orbit, textured outdoor table."
+seed = 0
+
+[ingest]
+source_path = "../datasets/garden/images"
+image_fps = 2.0
+frame_stride = 1
+
+[pose]
+backend = "colmap"
+
+[pose.colmap]
+# The filenames are a capture order, so neighbours are the likely matches.
+# "auto" would pick exhaustive here, which a directory generally deserves but
+# this one does not.
+matcher = "sequential"

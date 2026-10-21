@@ -1,0 +1,15 @@
+# Same shape as crowd-uncontrolled.toml: no marks were measured, so no position
+# error is computed. Here for the half of RQ3 that needs no ground truth.
+#
+# Unlike the crowd clip, this footage is CC0 and its provenance is recorded in
+# experiments/pedestrians.toml, so a figure drawn from it can be published.
+schema_version = 1
+convention = "camera_relative_opencv_metres"
+name = "pedestrians.uncontrolled"
+markers = []
+
+[scene]
+description = "Munich pedestrian street, CC0, stationary camera. No ground truth."
+participants = 1
+annotated_by = "not annotated; there is nothing here to annotate"
+annotated_on = "2026-09-05"

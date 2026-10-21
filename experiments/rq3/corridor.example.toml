@@ -1,0 +1,63 @@
+# Template, not a recording. Nothing has been shot against this yet: the numbers
+# below are placeholders and the file is here to show the format and to be
+# copied. The real one is written after the controlled session, from the tape
+# measure and the footage, and lands beside it as `corridor.toml`.
+#
+# Positions are camera-relative OpenCV metres: +X right, +Z forward, measured
+# from the camera rather than from a room corner. Every measured quantity
+# carries its own uncertainty, because an error smaller than the ruler is not a
+# result.
+
+schema_version = 1
+convention = "camera_relative_opencv_metres"
+name = "corridor.example"
+
+[scene]
+description = "Placeholder. Replace with the room, the lens and the lighting."
+camera_height_metres = 1.5
+camera_placement_uncertainty_metres = 0.02
+participants = 1
+annotated_by = ""
+annotated_on = ""
+
+# Floor marks, measured with a tape from directly under the camera.
+[[markers]]
+id = "A"
+x_metres = 0.0
+z_metres = 3.0
+uncertainty_metres = 0.03
+
+[[markers]]
+id = "B"
+x_metres = 1.5
+z_metres = 6.0
+uncertainty_metres = 0.03
+
+[[markers]]
+id = "C"
+x_metres = -1.5
+z_metres = 10.0
+uncertainty_metres = 0.05
+
+# Stretches where the participant stood still on a mark. These are what the
+# position error is measured over.
+[[stationary]]
+marker = "A"
+start_seconds = 2.0
+end_seconds = 7.0
+boundary_uncertainty_seconds = 0.2
+
+[[stationary]]
+marker = "C"
+start_seconds = 20.0
+end_seconds = 25.0
+boundary_uncertainty_seconds = 0.2
+
+# One measured walk. Apparent velocity by axis is measured over this, and it is
+# where the filter's response delay is priced.
+[[motion]]
+from_marker = "A"
+to_marker = "C"
+start_seconds = 8.0
+end_seconds = 19.0
+boundary_uncertainty_seconds = 0.3

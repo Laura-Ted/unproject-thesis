@@ -1,0 +1,103 @@
+# The person-count factor of RQ2 under protocol v2 §4.2 (ADR-0006). The
+# matrix suite holds the scene fixed and varies the tensor; this holds the
+# tensor fixed - every scene is 1920x1080, so the model sees 768x432 in every
+# cell - and varies the scene, chosen for how many people are in it:
+#
+#   low     mupots-ts10  MuPoTS-3D TS10, three people walking towards the camera
+#   low     mupots-ts11  MuPoTS-3D TS11, two people walking and crossing
+#   medium  mot16-09     MOTChallenge MOT16-09, about 11 people, the matrix suite's sequence
+#   high    mot16-08     MOTChallenge MOT16-08, about 23 people
+#
+# Two scenes at the low level on purpose: if their cost agrees, the count and
+# not the scene is what the other pairs measure. People per frame is recorded
+# in every sample; the pre-registered reading is in the protocol, and it
+# stays a covariate: the scenes differ in more than their count. The inputs
+# are the two research datasets only (MOT16, MuPoTS-3D); the CC0 pedestrians
+# clip left the campaign on 2026-09-15, before any measurement.
+#
+# Same policy as the matrix suite, so a cell here is comparable with one there
+# on the same machine: five warm-up frames, sixty measured, three
+# repetitions, a fresh process per job, the order shuffled with the seed.
+schema_version = 2
+name = "rq2-v2-people"
+description = "Person count x output at 1920x1080 (768x432 tensor), one process per job."
+protocol = "rq1rq2-v2"
+
+warmup_frames = 5
+measured_frames = 60
+repetitions = 3
+frame_selection = "spread"
+order_seed = 20260916
+
+[[cells]]
+name = "mupots-ts10-skeleton"
+experiment = "../../mupots-ts10.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mupots-ts10-mesh"
+experiment = "../../mupots-ts10.toml"
+output = "mesh"
+
+[[cells]]
+name = "mupots-ts11-skeleton"
+experiment = "../../mupots-ts11.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mupots-ts11-mesh"
+experiment = "../../mupots-ts11.toml"
+output = "mesh"
+
+[[cells]]
+name = "mot16-09-skeleton"
+experiment = "../../mot16-09.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-09-mesh"
+experiment = "../../mot16-09.toml"
+output = "mesh"
+
+[[cells]]
+name = "mot16-08-skeleton"
+experiment = "../../mot16-08.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-08-mesh"
+experiment = "../../mot16-08.toml"
+output = "mesh"
+
+# The scenes are different clips, so no pair here times the same frames; the
+# summary reports `same_frames: false` for each and the difference of medians
+# is the reading, not a per-frame one. Declared so the questions are on record.
+[[pairs]]
+a = "mot16-09-skeleton"
+b = "mot16-08-skeleton"
+question = "medium against high count, same source and camera style"
+
+[[pairs]]
+a = "mot16-08-skeleton"
+b = "mot16-08-mesh"
+question = "output mode at the high count, where per-person work is largest"
+
+[[pairs]]
+a = "mupots-ts10-skeleton"
+b = "mupots-ts11-skeleton"
+question = "two scenes at the low count: scene effect at fixed low count"
+
+[[pairs]]
+a = "mupots-ts10-skeleton"
+b = "mot16-09-skeleton"
+question = "low against medium count"
+
+[[pairs]]
+a = "mupots-ts10-skeleton"
+b = "mot16-08-skeleton"
+question = "low against high count: the widest span of the factor"
+
+[[pairs]]
+a = "mupots-ts10-skeleton"
+b = "mupots-ts10-mesh"
+question = "output mode at the low count, where per-person work is smallest"

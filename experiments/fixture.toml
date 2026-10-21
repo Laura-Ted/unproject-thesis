@@ -1,0 +1,11 @@
+# Smallest end-to-end experiment, used as the regression scene.
+# Paths are relative to this file so the config stays portable.
+schema_version = 1
+name = "fixture"
+description = "Small handheld orbit around a textured object; used as the regression scene."
+seed = 0
+
+[ingest]
+source_path = "../datasets/fixture/clip.mp4"
+# The clip is short, so keep every frame.
+frame_stride = 1

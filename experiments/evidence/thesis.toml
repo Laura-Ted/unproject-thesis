@@ -1,0 +1,273 @@
+# The evidence bundle of the thesis. ADR-0005 WP7.
+#
+# Every result the thesis quotes, by kind and local path, with the exact command
+# that produced it. `unproject evidence-bundle experiments/evidence/thesis.toml
+# evidence/thesis` reads each one, refuses one that is not what it claims to
+# be, copies only summaries, tables, figures and descriptors, and writes
+# release.json with every hash. The bundle directory is versioned; the
+# artifacts are not.
+#
+# Paths with <id> are filled in by the author after the final runs (WP4
+# runbook: docs/notes/2026-09-15-adr0005-wp4-final-evidence.md; the whole
+# sequence: docs/release.md). Until then every result is optional and the
+# bundle records the absent ones; at release `optional = true` is deleted
+# from each result that ran, so an absence is refused rather than recorded.
+# `require_final` is what makes a result a thesis result: a final evaluation
+# from a clean tree, a suite whose every job ran from one clean commit, a
+# bodies run whose manifest records a clean tree.
+schema_version = 1
+name = "thesis"
+description = "Unproject thesis evidence: RQ1/RQ2 under protocol v2, the live path, MuPoTS-3D under the Unproject protocol, the hypotheses, the filter."
+
+# Inputs indexed by hash and never carried. The weights are pinned by digest
+# in every config; the footage is CC0 and its provenance is in the experiment.
+inputs = [
+    "../../models/multihmr2.pt",
+    "../../datasets/pedestrians/clip.mp4",
+    "../../datasets/pedestrians-half/clip.mp4",
+    "../../datasets/pedestrians-letterbox/clip.mp4",
+    "../../datasets/pedestrians-letterbox-half/clip.mp4",
+]
+
+# The RQ1/RQ2 matrix on the protocol machine, A. `rq1rq2-v2` keeps its label
+# because the figure generator reads it; the campaign root is machine A's
+# (ADR-0006 §4.4).
+[[results]]
+kind = "benchmark-suite"
+label = "rq1rq2-v2"
+path = "../../artifacts/campaign/A/benchmark-v2/rq1rq2-v2-matrix"
+command = "make bench-matrix MACHINE=A"
+# Every job from one clean commit, or the build refuses the suite.
+require_final = true
+optional = true
+
+# The campaign (ADR-0006): the same suites on every declared machine, one
+# entry per machine and suite, so the bundle carries each machine's summary
+# and raw jobs apart and `campaign.csv` is derived from them. Machines are
+# added here as they are added to benchmarks/machines.toml.
+#
+# Run on 2026-09-15/16 (docs/notes/2026-09-16-campaign-report.md): A, D and
+# the five C-* hosts below, every suite from commit 7e7ac5c (D from 16b2231,
+# which adds its registry line and nothing else), validated with
+# benchmarks/validate-campaign.py. Machine B (the Mac mini) was dropped by the
+# author's decision and has no entry; the first C-rtx4070 run and the first
+# launches of A and D are pilots under artifacts/pilots/, not here.
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-A-people"
+path = "../../artifacts/campaign/A/benchmark-v2/rq2-v2-people"
+command = "make bench-people MACHINE=A"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-A-cpu"
+path = "../../artifacts/campaign/A/benchmark-v2/rq1-v2-cpu"
+command = "make bench-cpu MACHINE=A"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-D-matrix"
+path = "../../artifacts/campaign/D/benchmark-v2/rq1rq2-v2-matrix"
+command = "make bench-matrix MACHINE=D"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-D-people"
+path = "../../artifacts/campaign/D/benchmark-v2/rq2-v2-people"
+command = "make bench-people MACHINE=D"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-D-cpu"
+path = "../../artifacts/campaign/D/benchmark-v2/rq1-v2-cpu"
+command = "make bench-cpu MACHINE=D"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx4070-matrix"
+path = "../../artifacts/campaign/C-rtx4070/benchmark-v2/rq1rq2-v2-matrix"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx4070 --suites matrix"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx4070-people"
+path = "../../artifacts/campaign/C-rtx4070/benchmark-v2/rq2-v2-people"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx4070 --suites people"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx4070-cpu"
+path = "../../artifacts/campaign/C-rtx4070/benchmark-v2/rq1-v2-cpu"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx4070 --suites cpu"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx3060-matrix"
+path = "../../artifacts/campaign/C-rtx3060/benchmark-v2/rq1rq2-v2-matrix"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx3060 --suites matrix"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx3060-people"
+path = "../../artifacts/campaign/C-rtx3060/benchmark-v2/rq2-v2-people"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx3060 --suites people"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx3060-cpu"
+path = "../../artifacts/campaign/C-rtx3060/benchmark-v2/rq1-v2-cpu"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx3060 --suites cpu"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx4090-matrix"
+path = "../../artifacts/campaign/C-rtx4090/benchmark-v2/rq1rq2-v2-matrix"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx4090 --suites matrix"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx4090-people"
+path = "../../artifacts/campaign/C-rtx4090/benchmark-v2/rq2-v2-people"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx4090 --suites people"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx4090-cpu"
+path = "../../artifacts/campaign/C-rtx4090/benchmark-v2/rq1-v2-cpu"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx4090 --suites cpu"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx5070-matrix"
+path = "../../artifacts/campaign/C-rtx5070/benchmark-v2/rq1rq2-v2-matrix"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx5070 --suites matrix"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx5070-people"
+path = "../../artifacts/campaign/C-rtx5070/benchmark-v2/rq2-v2-people"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx5070 --suites people"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx5070-cpu"
+path = "../../artifacts/campaign/C-rtx5070/benchmark-v2/rq1-v2-cpu"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx5070 --suites cpu"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx5090-matrix"
+path = "../../artifacts/campaign/C-rtx5090/benchmark-v2/rq1rq2-v2-matrix"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx5090 --suites matrix"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx5090-people"
+path = "../../artifacts/campaign/C-rtx5090/benchmark-v2/rq2-v2-people"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx5090 --suites people"
+require_final = true
+optional = true
+
+[[results]]
+kind = "benchmark-suite"
+label = "campaign-C-rtx5090-cpu"
+path = "../../artifacts/campaign/C-rtx5090/benchmark-v2/rq1-v2-cpu"
+command = "python3 benchmarks/vast/campaign.py run <instance> --machine C-rtx5090 --suites cpu"
+require_final = true
+optional = true
+
+[[results]]
+kind = "live"
+label = "live"
+path = "../../artifacts/live"
+command = "uv run unproject-live-benchmark datasets/pedestrians/clip.mp4 --fps 1 --spawn; ... --fps 8 --spawn; ... --fps 1 --bodies --spawn; the viewer with ?measure=1&replay=datasets/pedestrians/clip.mp4&fps=1 and fps=8; uv run unproject live-summary"
+optional = true
+
+[[results]]
+kind = "ground-truth"
+label = "mupots-model-estimated"
+path = "../../artifacts/ground-truth/<id-control>"
+command = "uv run unproject gt-evaluate experiments/ground-truth/mupots-3d.toml --final --release-frames && uv run unproject gt-hypotheses artifacts/ground-truth/<id-control>"
+require_final = true
+optional = true
+
+[[results]]
+kind = "ground-truth"
+label = "mupots-annotation-derived"
+path = "../../artifacts/ground-truth/<id-treatment>"
+command = "uv run unproject gt-evaluate experiments/ground-truth/mupots-3d-annotation-derived-camera.toml --final --release-frames && uv run unproject gt-hypotheses artifacts/ground-truth/<id-treatment>"
+require_final = true
+optional = true
+
+[[results]]
+kind = "ground-truth"
+label = "mupots-letterbox-square"
+path = "../../artifacts/ground-truth/<id-letterbox>"
+command = "uv run unproject gt-evaluate experiments/ground-truth/mupots-3d-letterbox-square.toml --final --release-frames"
+require_final = true
+optional = true
+
+[[results]]
+kind = "compare"
+label = "camera-experiment"
+path = "../../artifacts/ground-truth/compare-<id-control>-<id-treatment>"
+command = "uv run unproject gt-compare artifacts/ground-truth/<id-control> artifacts/ground-truth/<id-treatment> --label-a model_estimated --label-b annotation_derived"
+optional = true
+
+[[results]]
+kind = "compare"
+label = "letterbox-experiment"
+path = "../../artifacts/ground-truth/compare-<id-treatment>-<id-letterbox>"
+command = "uv run unproject gt-compare artifacts/ground-truth/<id-treatment> artifacts/ground-truth/<id-letterbox> --label-a wide --label-b letterboxed"
+optional = true
+
+[[results]]
+kind = "filter"
+label = "filter"
+path = "../../artifacts/filter"
+command = "uv run unproject filter-characterise"
+optional = true
+
+[[results]]
+kind = "rq3-run"
+label = "pedestrians-run"
+path = "../../artifacts/pedestrians/bodies/<id-run>"
+command = "uv run unproject bodies experiments/pedestrians.toml && uv run unproject rq3 artifacts/pedestrians/bodies/<id-run> experiments/rq3/pedestrians-uncontrolled.toml"
+require_final = true
+optional = true

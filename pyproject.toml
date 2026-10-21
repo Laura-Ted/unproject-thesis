@@ -1,0 +1,139 @@
+# Workspace root. No code of its own; it pins the toolchain and holds the lint
+# and type configuration shared by every package.
+[project]
+name = "unproject-workspace"
+version = "0.1.0"
+description = "3D scene reconstruction from 2D video"
+readme = "README.md"
+# The upper bound matters: torch and pycolmap have no arm64 macOS wheels for
+# 3.13+, and building them from source is not a path we want to be on.
+requires-python = ">=3.12,<3.13"
+dependencies = ["unproject-pipeline", "unproject-api"]
+
+[project.optional-dependencies]
+# Forwarded so the extra can be asked for from the workspace root, which is
+# where every other command is run from.
+lingbot = ["unproject-pipeline[lingbot]"]
+multihmr = ["unproject-pipeline[multihmr]", "unproject-api[multihmr]"]
+ground-truth = ["unproject-pipeline[ground-truth]"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.14",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.9",
+    # Starlette's TestClient runs the API in-process, which is the only way to
+    # test routes without standing a server up. httpx2 rather than httpx: it is
+    # what starlette asks for, and httpx warns on every import.
+    "httpx2>=0.29",
+    # Not a runtime dependency of the default install, but mypy needs the real
+    # stubs to say anything useful about the learned backend.
+    "torch>=2.6",
+]
+
+[tool.uv]
+package = false
+# The model declares the GUI build of OpenCV, which would install a second cv2
+# on top of the headless one the pipeline asks for. Nothing on the inference
+# path imports cv2 at all; it is only used by the model's viewer.
+override-dependencies = ["opencv-python; sys_platform == 'nonexistent'"]
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/api"]
+
+[tool.uv.sources]
+unproject-pipeline = { workspace = true }
+unproject-api = { workspace = true }
+
+# --------------------------------------------------------------------------- #
+# Lint
+# --------------------------------------------------------------------------- #
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages/pipeline/src", "packages/pipeline/tests", "apps/api/src"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # import sorting
+    "N",        # pep8-naming
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "SIM",      # simplify
+    "PTH",      # prefer pathlib over os.path
+    "ANN",      # annotate every signature; the entry gate for mypy --strict
+    "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test functions do not need a documented return type.
+"packages/pipeline/tests/*" = ["ANN201"]
+"apps/api/tests/*" = ["ANN201"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["unproject", "unproject_api"]
+
+# --------------------------------------------------------------------------- #
+# Types
+# --------------------------------------------------------------------------- #
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["packages/pipeline/src", "packages/pipeline/tests", "apps/api/src", "apps/api/tests"]
+# Tests import their fixture protocols by plain module name, as pytest does.
+mypy_path = "packages/pipeline/tests"
+plugins = ["pydantic.mypy"]
+# Otherwise `Any` from an unstubbed dependency quietly defeats strict mode.
+disallow_any_unimported = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+# opencv-python ships partial stubs; its extension modules are not typed.
+module = ["cv2.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# pycolmap is a pybind11 extension and ships no stubs at all.
+module = ["pycolmap.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Installed only with the `lingbot` extra, and untyped either way. The backend
+# describes the surface it uses with Protocols instead.
+module = ["lingbot_map.*", "huggingface_hub.*", "PIL.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Installed only with the `multihmr` extra, and untyped either way. Stage [B]
+# describes the surface it uses with Protocols, same as stage [3] does.
+module = ["multihmr2.*", "anny.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Installed only with the `ground-truth` extra and shipping no stubs. The MuPoTS
+# adapter is the single import site, and it converts everything loadmat returns
+# through `np.asarray(..., dtype=np.float64)`, so nothing untyped escapes it.
+module = ["scipy.*"]
+ignore_missing_imports = true
+
+# --------------------------------------------------------------------------- #
+# Tests
+# --------------------------------------------------------------------------- #
+[tool.pytest.ini_options]
+testpaths = ["packages/pipeline/tests", "apps/api/tests"]
+pythonpath = ["packages/pipeline/tests"]
+# `-p openmp_guard` loads packages/pipeline/tests/openmp_guard.py, the plugin
+# that keeps pycolmap and torch in separate processes: a plain `pytest` leaves
+# out packages/pipeline/tests/needs_pycolmap/, and `pytest --pycolmap` runs only
+# it. The gate is those two invocations.
+addopts = "-q --strict-markers --strict-config -p openmp_guard"
+# `dataset` needs a licensed dataset that is not in this repository, so it
+# skips with an actionable message rather than failing. ADR-0004 §8.4.
+# `pycolmap` is put by the plugin on everything under needs_pycolmap/.
+markers = [
+    "dataset: requires a locally obtained licensed dataset",
+    "pycolmap: imports pycolmap; collected only by `pytest --pycolmap`, never beside torch",
+]

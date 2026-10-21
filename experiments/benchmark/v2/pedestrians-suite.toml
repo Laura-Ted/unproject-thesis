@@ -1,0 +1,99 @@
+# RETIRED 2026-09-15, before any campaign measurement: the campaign's suites
+# are matrix-suite.toml (MOT16-09, geometries by the ingest) and people-suite.toml, on the
+# two research datasets only. This file is kept as the record of the M4 pilot
+# of 2026-09-15 (docs/notes/2026-09-15-adr0005-v2-pilot-on-m4.md); it is not
+# run by the Makefile and is not in the evidence bundle.
+#
+# The RQ1/RQ2 matrix under protocol v2. See docs/experiments/protocol-v2.md,
+# which this file implements and which is frozen; changing a value here after a
+# measurement has been taken needs a dated note.
+#
+# One policy for every cell: five warm-up frames, sixty measured frames spread
+# along the clip, three repetitions, every (cell, repetition) in a fresh
+# process, in an order shuffled with the seed below and recorded in every
+# result. The cells are the three factors of ADR-0002 §8.3 that a public clip
+# can carry - aspect ratio, resolution, output mode - fully crossed. The
+# person-count factor is not measured; people per frame is recorded as a
+# description of the scene.
+schema_version = 2
+name = "rq1rq2-v2-pedestrians"
+description = "Aspect ratio x resolution x output on the CC0 pedestrians clip, one process per job."
+protocol = "rq1rq2-v2"
+
+warmup_frames = 5
+measured_frames = 60
+repetitions = 3
+frame_selection = "spread"
+order_seed = 20260915
+
+[[cells]]
+name = "pedestrians-skeleton"
+experiment = "../../pedestrians.toml"
+output = "skeleton"
+
+[[cells]]
+name = "pedestrians-mesh"
+experiment = "../../pedestrians.toml"
+output = "mesh"
+
+[[cells]]
+name = "pedestrians-half-skeleton"
+experiment = "../../pedestrians-half.toml"
+output = "skeleton"
+
+[[cells]]
+name = "pedestrians-half-mesh"
+experiment = "../../pedestrians-half.toml"
+output = "mesh"
+
+[[cells]]
+name = "pedestrians-letterbox-skeleton"
+experiment = "../../pedestrians-letterbox.toml"
+output = "skeleton"
+
+[[cells]]
+name = "pedestrians-letterbox-mesh"
+experiment = "../../pedestrians-letterbox.toml"
+output = "mesh"
+
+[[cells]]
+name = "pedestrians-letterbox-half-skeleton"
+experiment = "../../pedestrians-letterbox-half.toml"
+output = "skeleton"
+
+[[cells]]
+name = "pedestrians-letterbox-half-mesh"
+experiment = "../../pedestrians-letterbox-half.toml"
+output = "mesh"
+
+# Paired differences on the same frames, b minus a. Each pair changes one
+# factor and holds the other two.
+[[pairs]]
+a = "pedestrians-skeleton"
+b = "pedestrians-mesh"
+question = "output mode at 1920x1080"
+
+[[pairs]]
+a = "pedestrians-letterbox-skeleton"
+b = "pedestrians-letterbox-mesh"
+question = "output mode at 1920x1920"
+
+[[pairs]]
+a = "pedestrians-skeleton"
+b = "pedestrians-letterbox-skeleton"
+question = "aspect ratio, same content and scale, at full resolution"
+
+[[pairs]]
+a = "pedestrians-half-skeleton"
+b = "pedestrians-letterbox-half-skeleton"
+question = "aspect ratio, same content and scale, at half resolution"
+
+[[pairs]]
+a = "pedestrians-half-skeleton"
+b = "pedestrians-skeleton"
+question = "resolution, 960 against 1920 long edge, 16:9"
+
+[[pairs]]
+a = "pedestrians-letterbox-half-skeleton"
+b = "pedestrians-letterbox-skeleton"
+question = "resolution, 960 against 1920 long edge, 1:1"

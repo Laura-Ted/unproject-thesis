@@ -1,0 +1,37 @@
+# The CPU-only point of RQ1 (ADR-0006 §4.4, protocol v2 §10): the matrix
+# suite's 16:9 sequence and policy with the model held to the CPU, so the
+# difference between this and the matrix on the same machine is what the
+# accelerator is worth. Two cells, not eight: the aspect-ratio and resolution
+# factors are properties of the model that the matrix already measures, and a
+# CPU cell costs about ten times a GPU one.
+#
+# `device = "cpu"` is enforced by the driver and by each job: a job that
+# finds `UNPROJECT_DEVICE` set to anything else refuses rather than runs.
+# The summary records `cpu` on every cell. On MOT16-09 since 2026-09-15,
+# before any campaign measurement, like the matrix suite.
+schema_version = 2
+name = "rq1-v2-cpu"
+description = "Output mode at 1920x1080 on MOT16-09, on the CPU alone, one process per job."
+protocol = "rq1rq2-v2"
+
+warmup_frames = 5
+measured_frames = 60
+repetitions = 3
+frame_selection = "spread"
+order_seed = 20260917
+device = "cpu"
+
+[[cells]]
+name = "mot16-09-skeleton"
+experiment = "../../mot16-09.toml"
+output = "skeleton"
+
+[[cells]]
+name = "mot16-09-mesh"
+experiment = "../../mot16-09.toml"
+output = "mesh"
+
+[[pairs]]
+a = "mot16-09-skeleton"
+b = "mot16-09-mesh"
+question = "output mode at 1920x1080, on the CPU"

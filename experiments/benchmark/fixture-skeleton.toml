@@ -1,0 +1,13 @@
+# The cell that proves the plumbing, not a cell of the thesis matrix: the
+# fixture clip is a synthetic pattern with no people in it. Real cells wait on
+# the pre-registered protocol in docs/experiments/protocol.md.
+schema_version = 1
+name = "fixture-skeleton"
+description = "Orchestration check on the synthetic fixture clip."
+
+experiment = "../fixture.toml"
+
+warmup_frames = 2
+measured_frames = 8
+repetitions = 2
+output = "skeleton"

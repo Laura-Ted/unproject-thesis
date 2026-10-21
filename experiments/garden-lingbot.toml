@@ -1,0 +1,20 @@
+# The garden scene through the learned backend. Shares `name`, ingest and
+# preprocess with garden.toml, so both runs are fed exactly the same 146
+# keyframes and the backend is the only difference.
+schema_version = 1
+name = "garden"
+description = "Mip-NeRF 360 garden, learned pose backend. Pairs with garden.toml."
+seed = 0
+
+[ingest]
+source_path = "../datasets/garden/images"
+image_fps = 2.0
+frame_stride = 1
+
+[pose]
+backend = "lingbot"
+
+[pose.lingbot]
+kv_cache_sliding_window = 16
+num_scale_frames = 2
+dtype = "bfloat16"
